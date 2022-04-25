@@ -1,0 +1,114 @@
+{#-
+    This adapts the default esplora nginx config, which is rendered
+    in `run.sh`:
+
+    * https://github.com/Blockstream/esplora/blob/master/contrib/nginx.conf.in
+    * https://github.com/Blockstream/esplora/blob/master/run.sh
+-#}
+
+{%- set daemon, network = esplora.network.split('_') -%}
+{%- set nginx_path = esplora.nginx.prefix -%}
+{%- set nginx_rewrite = '' -%}
+{%- set nginx_rewrite_nojs = 'return 301 " /nojs$uri"'  -%}
+{%- if daemon != "liquid" and network in ["testnet", "signet", "regtest"] -%}
+{%-   set nginx_path = nginx_path ~ network ~ '/' -%}
+{%-   set nginx_rewrite = "rewrite ^/" ~ network ~ "(/.*)$ $1 break;" -%}
+{%-   set nginx_rewrite_nojs = 'rewrite ^/' ~ network ~ '(/.*)$ " /' ~ network ~ '/nojs$1?" permanent' -%}
+{%- endif -%}
+{%- set nginx_noslash_path = nginx_path.rstrip('/') -%}
+
+upstream backend {
+    server {{ esplora.electrs }};
+    keepalive 300;
+}
+
+{%- if esplora.nojs %}
+
+upstream prerenderer {
+# @TODO make this configurable
+    server 127.0.0.1:5001;
+    keepalive 300;
+}
+{%- endif %}
+
+server {
+    listen {{ esplora.nginx.listen }};
+    keepalive_requests 100000;
+    gzip on;
+    gzip_types application/json text/plain application/xml application/javascript;
+    gzip_proxied any;
+    gzip_vary on;
+    root {{ esplora.lookup.paths.www }};
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 650s;
+    {{ esplora.nginx.logging }};
+    server_tokens off;
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header Content-Security-Policy "{{ esplora.nginx.csp }}" always;
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer" always;
+
+    location /{{ esplora.nginx.prefix }}api/ {
+        proxy_pass http://backend/;
+        add_header Access-Control-Allow-Origin * always;
+        add_header Access-Control-Expose-Headers 'x-total-results';
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+{%- if esplora.nojs %}
+
+    location /{{ nginx_path }}nojs/ {
+        proxy_pass http://prerenderer/;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+
+    location = /{{ nginx_path }}nojs {
+        return 301 " /{{ nginx_path }}nojs/";
+    }
+{%- endif %}
+
+    location ~ ^/{{ nginx_path }}((tx|block|block-height|address|assets?)/|[a-zA-Z0-9]+$) {
+        expires 60m;
+{%- if esplora.nojs %}
+        if ($args = "nojs") {
+            {{ nginx_rewrite_nojs }};
+        }
+{%- endif %}
+        try_files $uri /index.html;
+    }
+
+    location /{{ nginx_path }} {
+        expires 60m;
+{%- if esplora.nojs %}
+        if ($args = "nojs") {
+            {{ nginx_rewrite_nojs }};
+        }
+{%- endif %}
+{%- if nginx_rewrite %}
+        {{ nginx_rewrite }}
+{%- endif %}
+    }
+
+{%- if nginx_noslash_path %}
+
+    location = /{{ nginx_noslash_path }} {
+{%-   if esplora.nojs %}
+        if ($args = "nojs") {
+            {{ nginx_rewrite_nojs }};
+        }
+{%-   endif %}
+        return 301 " /{{ nginx_path }}";
+    }
+{%- endif %}
+
+    error_page 404 /{{ nginx_path }}notfound.html;
+
+    location = /notfound.html {
+        internal;
+    }
+}

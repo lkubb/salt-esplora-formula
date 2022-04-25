@@ -1,0 +1,80 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+# yamllint disable rule:comments-indentation
+---
+esplora:
+    # Specify version, should be a valid git rev or `latest`.
+  version: latest
+    # Specify environment variables for building Esplora SPA/prerender-server.
+    # Keep them lowercase to avoid confusion. `api_url` for the prerender-server
+    # will be adapted automatically.
+  config:
+    api_url: /api
+    node_env: production
+    # Specify where to reach the electrs backend. Can be IP:port or unix:/path/to/socket
+  electrs: 127.0.0.1:3000
+    # Specify <daemon>_<network>. Daemon can be `bitcoin` or `liquid`,
+    # network `mainnet`, `testnet`, `regtest`, `signet`.
+  network: bitcoin_mainnet
+    # Automatic configuration of nginx as server/reverse proxy needs custom modules.
+    # @TODO link to repo once published.
+    # Set to false to disable.
+  nginx:
+    csp: default-src 'self'; script-src 'self' 'unsafe-eval'; img-src 'self' data:;
+      style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'
+      # listen directive in nginx server config, can include IP as well.
+    listen: '80'
+    logging: access_log off
+      # If the site should not be served from the root directory, specify here.
+      # Should end with a backslash, but not start with one.
+    prefix: ''
+    # This enables/disables the prerender-server.
+  nojs: true
+    # Specify prerender-server service dependencies.
+  service:
+    wants: []
+
+  lookup:
+    group: esplora
+    paths:
+      build: /opt/esplora/src
+      www: /var/www/esplora
+    pkg:
+      source: https://github.com/Blockstream/esplora.git
+    requirements:
+      base:
+        - npm
+    service:
+      name: esplora-prerenderer
+      unit: /etc/systemd/system/{name}.service
+    user: esplora
+    www_group: www-data
+    www_user: www-data
+
+  tofs:
+      # The files_switch key serves as a selector for alternative
+      # directories under the formula files directory. See TOFS pattern
+      # doc for more info.
+      # Note: Any value not evaluated by `config.get` will be used literally.
+      # This can be used to set custom paths, as many levels deep as required.
+    files_switch:
+      - any/path/can/be/used/here
+      - id
+      - roles
+      - osfinger
+      - os
+      - os_family
+
+      # All aspects of path/file resolution are customisable using the options below.
+      # This is unnecessary in most cases; there are sensible defaults.
+      # Default path: salt://< path_prefix >/< dirs.files >/< dirs.default >
+      # I.e.: salt://esplora/files/default
+      # path_prefix: template_alt
+      # dirs:
+      #   files: files_alt
+      #   default: default_alt
+      # The entries under `source_files` are prepended to the default source files
+      # given for the state
+    source_files:
+      esplora-config-file-file-managed:
+        - 'esplora-prerenderer_alt.env.j2'

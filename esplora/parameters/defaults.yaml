@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set default values.
+---
+values:
+  lookup:
+    rootgroup: root
+    config: '/etc/esplora/prerenderer.env'
+    group: esplora
+    paths:
+      build: /opt/esplora/src
+      www: /var/www/esplora
+    pkg:
+      source: https://github.com/Blockstream/esplora.git
+    requirements:
+      base:
+        - npm
+      nginx: nginx
+    service:
+      name: esplora-prerenderer
+      unit: /etc/systemd/system/{name}.service
+    user: esplora
+    www_group: www-data
+    www_user: www-data
+  config:
+    api_url: /api
+    node_env: production
+  electrs: 127.0.0.1:3000
+  network: bitcoin_mainnet
+  nginx:
+    csp: default-src 'self'; script-src 'self' 'unsafe-eval'; img-src 'self' data:;
+      style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'
+    listen: '80'
+    logging: access_log off
+    prefix: ''
+  nojs: true
+  service:
+    wants: []
+  version: latest
+  # Just here for testing
+  added_in_defaults: defaults_value
+  winner: defaults
+...

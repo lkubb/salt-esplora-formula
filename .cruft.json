@@ -1,0 +1,73 @@
+{
+  "template": "https://github.com/lkubb/salt-template-formula",
+  "commit": "50a694adefdf54f1ca465db433c033ca764942bc",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "_extensions": [
+        "local_extensions.YAMLDumper"
+      ],
+      "_jinja2_env_vars": {
+        "block_start_string": "{!",
+        "block_end_string": "!}",
+        "variable_start_string": "{=",
+        "variable_end_string": "=}",
+        "comment_start_string": "{@",
+        "comment_end_string": "@}"
+      },
+      "name": "Esplora Block Explorer",
+      "abbr": "esplora",
+      "abbr_pysafe": "esplora",
+      "pkg": "",
+      "needs_repo": "",
+      "config": "/etc/esplora/prerenderer.env",
+      "service": "esplora-prerenderer",
+      "subcomponent": "",
+      "subcomponent_config": "",
+      "git_username": "lkubb",
+      "_lookup": {
+        "requirements": {
+          "base": [
+            "npm"
+          ]
+        },
+        "paths": {
+          "build": "/opt/esplora/src",
+          "www": "/var/www/esplora"
+        },
+        "pkg": {
+          "source": "https://github.com/Blockstream/esplora.git"
+        },
+        "service": {
+          "name": "esplora-prerenderer",
+          "unit": "/etc/systemd/system/{name}.service"
+        },
+        "user": "esplora",
+        "group": "esplora",
+        "www_user": "www-data",
+        "www_group": "www-data"
+      },
+      "_settings": {
+        "version": "latest",
+        "nojs": true,
+        "electrs": "127.0.0.1:3000",
+        "network": "bitcoin_mainnet",
+        "nginx": {
+          "csp": "default-src 'self'; script-src 'self' 'unsafe-eval'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'",
+          "listen": "80",
+          "prefix": "",
+          "logging": "access_log off"
+        },
+        "service": {
+          "wants": []
+        },
+        "config": {
+          "node_env": "production",
+          "api_url": "/api"
+        }
+      },
+      "_template": "https://github.com/lkubb/salt-template-formula"
+    }
+  },
+  "directory": null
+}
