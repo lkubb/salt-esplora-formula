@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{%- set tplroot = tpldir.split('/')[0] %}
+{%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as esplora with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
@@ -45,7 +44,7 @@ Esplora repository is up to date:
   git.latest:
     - name: {{ esplora.lookup.pkg.source }}
     - target: {{ esplora.lookup.paths.build }}
-    - rev: {{ 'HEAD' if 'latest' == esplora.version else esplora.version }}
+    - rev: {{ "HEAD" if "latest" == esplora.version else esplora.version }}
     - force_reset: remote-changes
     - user: {{ esplora.lookup.user }}
     - require:
@@ -61,7 +60,7 @@ NPM dependencies for Esplora are installed:
 
 Esplora SPA is built:
   cmd.script:
-    - name: {{ esplora.lookup.paths.build | path_join('build.sh') }}
+    - name: {{ esplora.lookup.paths.build | path_join("build.sh") }}
     - cwd: {{ esplora.lookup.paths.build }}
     - runas: {{ esplora.lookup.user }}
     - onchanges:
@@ -77,12 +76,12 @@ Esplora SPA is built:
       # so running salt["cmd.run_stdout"]("echo $PATH", runas=esplora.lookup.user, python_shell=True)
       # would fail. It is needed because the script relies on `pug`, which is installed with npm.
       # This is incompatible with Windows and probably M1 Macs (/opt/homebrew), at least.
-      - PATH: /usr/local/bin:/usr/bin:/bin:{{ esplora.lookup.paths.build | path_join('node_modules', '.bin') }}
+      - PATH: /usr/local/bin:/usr/bin:/bin:{{ esplora.lookup.paths.build | path_join("node_modules", ".bin") }}
 
 Esplora is installed:
   file.copy:
     - name: {{ esplora.lookup.paths.www }}
-    - source: {{ esplora.lookup.paths.build | path_join('dist') }}
+    - source: {{ esplora.lookup.paths.build | path_join("dist") }}
     - force: true
     - user: {{ esplora.lookup.www_user }}
     - group: {{ esplora.lookup.www_group }}
@@ -96,8 +95,8 @@ Esplora is installed:
 
 Esplora prerender-server is built:
   cmd.script:
-    - name: {{ esplora.lookup.paths.build | path_join('prerender-server', 'build.sh') }}
-    - cwd: {{ esplora.lookup.paths.build | path_join('prerender-server') }}
+    - name: {{ esplora.lookup.paths.build | path_join("prerender-server", "build.sh") }}
+    - cwd: {{ esplora.lookup.paths.build | path_join("prerender-server") }}
     - runas: {{ esplora.lookup.user }}
     - onchanges:
       - Esplora repository is up to date
@@ -108,18 +107,18 @@ Esplora prerender-server service is installed:
   file.managed:
     - name: {{ esplora.lookup.service.unit.format(name=esplora.lookup.service.name) }}
     - source: {{ files_switch(
-                    ['esplora-prerenderer.service.j2'],
-                    lookup='Esplora prerender-server service is installed',
+                    ["esplora-prerenderer.service", "esplora-prerenderer.service.j2"],
+                    lookup="Esplora prerender-server service is installed",
                   ) }}
     - template: jinja
     - mode: '0644'
     - user: root
     - group: {{ esplora.lookup.rootgroup }}
     - makedirs: true
-    - context: {{ {'esplora': esplora} | json }}
+    - context: {{ {"esplora": esplora} | json }}
     - require:
       - Esplora prerender-server is built
-{%-   if 'systemctl' | which %}
+{%-   if "systemctl" | which %}
   # this executes systemctl daemon-reload
   module.run:
     - service.systemctl_reload: []

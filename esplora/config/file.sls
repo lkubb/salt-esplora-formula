@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{%- set tplroot = tpldir.split('/')[0] %}
-{%- set sls_package_install = tplroot ~ '.package.install' %}
+{%- set tplroot = tpldir.split("/")[0] %}
+{%- set sls_package_install = tplroot ~ ".package.install" %}
 {%- from tplroot ~ "/map.jinja" import mapdata as esplora with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
@@ -14,17 +13,17 @@
 include:
   - {{ sls_package_install }}
 
-esplora-config-file-file-managed:
+Esplora configuration is managed:
   file.managed:
     - name: {{ esplora.lookup.config }}
-    - source: {{ files_switch(['esplora-prerenderer.env.j2'],
-                              lookup='esplora-config-file-file-managed'
+    - source: {{ files_switch(["prerenderer.env", "prerenderer.env.j2"],
+                              lookup="Esplora Block Explorer configuration is managed"
                  )
-              }}
-    - mode: '0600'
+             }}
+    - mode: "0600"
     - user: root
     - group: {{ esplora.lookup.rootgroup }}
-    - makedirs: True
+    - makedirs: true
     - template: jinja
     - require:
       - sls: {{ sls_package_install }}
