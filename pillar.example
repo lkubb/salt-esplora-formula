@@ -75,5 +75,5 @@ esplora:
       # The entries under `source_files` are prepended to the default source files
       # given for the state
     source_files:
-      esplora-config-file-file-managed:
+      Esplora configuration is managed:
         - 'esplora-prerenderer_alt.env.j2'

@@ -10,6 +10,6 @@ include:
 Esplora Block Explorer is running:
   service.running:
     - name: {{ esplora.lookup.service.name }}
-    - enable: True
+    - enable: true
     - watch:
       - sls: {{ sls_config_file }}
