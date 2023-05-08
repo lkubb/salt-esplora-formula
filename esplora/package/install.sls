@@ -118,3 +118,4 @@ Esplora prerender-server service is installed:
     - context: {{ {"esplora": esplora} | json }}
     - require:
       - Esplora prerender-server is built
+{%- endif %}
