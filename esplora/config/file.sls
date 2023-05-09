@@ -16,7 +16,7 @@ include:
 Esplora configuration is managed:
   file.managed:
     - name: {{ esplora.lookup.config }}
-    - source: {{ files_switch(["prerenderer.env", "prerenderer.env.j2"],
+    - source: {{ files_switch(["esplora-prerenderer.env", "esplora-prerenderer.env.j2"],
                               lookup="Esplora Block Explorer configuration is managed"
                  )
              }}
