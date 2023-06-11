@@ -109,7 +109,7 @@ then uninstalls esplora and the prerender-server.
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Removes Esplora/the prerender-server and its unit file
 as well as the dedicated user account.
-Has a depency on `esplora.config.clean`_.
+Has a dependency on `esplora.config.clean`_.
 
 
 ``esplora.config.clean``
