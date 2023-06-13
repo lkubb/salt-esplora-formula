@@ -2,7 +2,7 @@
 
 {%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as esplora with context %}
-{%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
+{%- from tplroot ~ "/libtofsstack.jinja" import files_switch with context %}
 
 # Running npm as root is probably not the best idea
 Esplora user/group are present:
@@ -108,8 +108,10 @@ Esplora prerender-server service is installed:
     - name: {{ esplora.lookup.service.unit.format(name=esplora.lookup.service.name) }}
     - source: {{ files_switch(
                     ["esplora-prerenderer.service", "esplora-prerenderer.service.j2"],
+                    config=esplora,
                     lookup="Esplora prerender-server service is installed",
-                  ) }}
+                  )
+              }}
     - template: jinja
     - mode: '0644'
     - user: root
